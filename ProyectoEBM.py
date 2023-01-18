@@ -125,7 +125,7 @@ if options == "Reservoir Potential":
         # curva = IPR_curve_methods(q_test, pwf_test, pr, list_pwf, pb, method, ef=1, ef2=None)
         # st.pyplot(curva)
 
-    # elif st.checkbox("STANDING"):
+    elif st.checkbox("Capa de gas"):
     #     method = "Standing"
     #     st.subheader("*Enter input values*")
     #     q_test = st.number_input("Enter q_test value: ")
