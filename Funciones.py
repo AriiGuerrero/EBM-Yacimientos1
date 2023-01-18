@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import math
+from scipy import stats
 
 #Caso 1 Subsaturado
 def F_caso1(Np, Bo, Boi=None):
@@ -133,3 +134,12 @@ def Rs(colums, P, Pb, API, T=None, Yg=None, Yo=None):
             Rs = string("Seleccione una correlación de la lista")
             Rsb = 0
     return Rs
+
+def grafica(slope, intercept,lData,y_fit):
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.scatter(lData['Eo+Efw'], lData['F'], label='Original Data')
+    ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
+    plt.legend()
+    text = "Intercept: %.1f\nN: %.3f" % (intercept, slope / 1E6)
+    plt.text(0.008, 1, text)
+    plt.show()

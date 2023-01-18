@@ -1,12 +1,47 @@
 import numpy as np
 import streamlit as st
 import pandas as pd
-#import plotly_express as px
+import matplotlib
+import matplotlib.pyplot as plt
+from scipy import stats
 from streamlit_option_menu import option_menu
 from PIL import Image
 from collections import namedtuple
 from math import radians, acos, asin, cos, sin, atan, degrees, sqrt
-from Funciones import F_caso1,Eo_caso1,Eo_caso3,Efw_caso1,Eg_caso3,Rp_corregido,Bo,Rs
+from Funciones import F_caso1,Eo_caso1,Eo_caso3,Efw_caso1,Eg_caso3,Rp_corregido,Bo,Rs,grafica
+
+N = st.number_input("Enter N value: ")
+Pi = st.number_input("Enter Pi value: ")
+Bw = st.number_input("Enter Bw value: ")
+Cf = 0.00000495
+Cw = 0.00000362
+Sw = st.number_input("Enter Sw value")
+data1 = r"C:/Users/Arianna/PycharmProjects/EBM-Yacimientos1/Data/ejercicio1.csv"
+lData = pd.read_csv(data1, sep=",")
+p = lData['P'].values
+Bo = lData['Bo (bbl/STB)'].values
+Np = lData['Np STB'].values
+Wp = lData['Wp'].values
+eai = lData['Bo (bbl/STB)'][0] * ((Cf + (Sw * Cw)) / (1 - Sw))
+lData['F'] = lData['Np STB'] * ((lData['Bo (bbl/STB)']))
+lData['Eo'] = lData['Bo (bbl/STB)'] - lData['Bo (bbl/STB)'][0]
+lData['DP'] = lData['P'][0] - lData['P']
+lData['Efw'] = eai * lData['DP']
+lData['Eo+Efw'] = lData['Efw'] + lData['Eo']
+lData
+        #Grafica
+slope, intercept, r_value, p_value, std_err = stats.linregress(lData['Eo+Efw'], lData['F'])
+print(slope)
+print(intercept)
+y_fit = intercept + (lData['Eo+Efw'] * slope)
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.scatter(lData['Eo+Efw'],lData['F'], label='Original Data')
+ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
+plt.legend()
+text = "Intercept: %.1f\nN: %.3f" % (intercept, slope/1E6)
+plt.text(0.008, 1, text)
+plt.show()
+
 
 
 # Insert an icon
@@ -30,7 +65,7 @@ body {background-color: #DCE3D5;
 )
 
 # Title of the app
-st.title(" RESERVOIR ENGINEERING :database-add:")
+st.title(" RESERVOIR ENGINEERING :link:")
 
 st.write("---")
 
@@ -69,36 +104,43 @@ with st.sidebar:
         icons=["pencil-square", "server", "calculator"],)
 
 # Call web app sections
-if options == "Reservoir Potential":
-    st.set_option('deprecation.showPyplotGlobalUse', False)
-    if st.checkbox("Yacimiento Subsaturado"):
-        # method="Darcy"
-        # st.subheader("*Enter input values*")
-        # q_test = st.number_input("Enter q_test value: ")
-        # pwf_test = st.number_input("Enter pwf_test value: ")
-        # pr = st.number_input("Enter pr value: ")
-        # pwf = st.number_input("Enter pwf value")
-        # pb = st.number_input("Enter pb value")
-        # st.subheader("*Show results*")
-        # Q_darcy= qo_darcy(q_test, pwf_test, pr, pwf, pb)
-        # st.success(f" Q_Darcy = {Q_darcy:.3f} bpd")
-        # IP=j(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-        # st.success(f" IP = {IP:.3f} bpd/psia")
-        # AOF=aof(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-        # st.success(f" AOF = {AOF:.3f} bpd")
-        # QB= Qb(q_test,pwf,pr,pb,ef=1,ef2=None)
-        # st.success(f" QB = {QB:.3f} bpd")
-        # st.subheader("*THE IPR CURVE*")
-        # pwf1=st.number_input("Enter the first pwf value: ")
-        # pwf2=st.number_input("Enter the second pwf value: ")
-        # pwf3=st.number_input("Enter the third pwf value: ")
-        # pwf4=st.number_input("Enter the fourth pwf value: ")
-        # pwf5=st.number_input("Enter the fifth pwf value: ")
-        # list_pwf = np.array([pwf1,pwf2,pwf3,pwf4,pwf5])
-        # curva = IPR_curve_methods(q_test, pwf_test, pr, list_pwf, pb, method, ef=1, ef2=None)
-        # st.pyplot(curva)
 
-    elif st.checkbox("Yacimiento Saturado"):
+st.set_option('deprecation.showPyplotGlobalUse', False)
+if options == "Reservoir Potential":
+    st.subheader("*Escoga la opcion que requiere:*")
+    if st.checkbox("Yacimiento Subsaturado"):
+        st.write("Los valores de Cf y Cw son: 0.00000495 y 0.00000362 respectivamente")
+        st.subheader("*Enter input values*")
+        N = st.number_input("Enter N value: ")
+        Pi = st.number_input("Enter Pi value: ")
+        Bw = st.number_input("Enter Bw value: ")
+        Cf = 0.00000495
+        Cw = 0.00000362
+        Sw = st.number_input("Enter Sw value")
+        data1 = r"C:/Users/Arianna/PycharmProjects/EBM-Yacimientos1/Data/ejercicio1.csv"
+        lData = pd.read_csv(data1, sep=",")
+        p = lData['P'].values
+        Bo = lData['Bo (bbl/STB)'].values
+        Np = lData['Np STB'].values
+        Wp = lData['Wp'].values
+        eai = lData['Bo (bbl/STB)'][0] * ((Cf + (Sw * Cw)) / (1 - Sw))
+        lData['F'] = lData['Np STB'] * ((lData['Bo (bbl/STB)']))
+        lData['Eo'] = lData['Bo (bbl/STB)'] - lData['Bo (bbl/STB)'][0]
+        lData['DP'] = lData['P'][0] - lData['P']
+        lData['Efw'] = eai * lData['DP']
+        lData['Eo+Efw'] = lData['Efw'] + lData['Eo']
+        lData
+        #Grafica
+        slope, intercept, r_value, p_value, std_err = stats.linregress(lData['Eo+Efw'], lData['F'])
+        y_fit = intercept + (lData['Eo+Efw'] * slope)
+        fig, ax = plt.subplots(figsize=(8, 6))
+        ax.scatter(lData['Eo+Efw'], lData['F'], label='Original Data')
+        ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
+        plt.legend()
+        text = "Intercept: %.1f\nN: %.3f" % (intercept, slope / 1E6)
+        plt.text(0.008, 1, text)
+        st.pyplot(grafica(slope, intercept,lData,y_fit))
+    #elif st.checkbox("Yacimiento Saturado"):
         # method = "Vogel"
         # st.subheader("*Enter input values*")
         # q_test = st.number_input("Enter q_test value: ")
@@ -125,7 +167,7 @@ if options == "Reservoir Potential":
         # curva = IPR_curve_methods(q_test, pwf_test, pr, list_pwf, pb, method, ef=1, ef2=None)
         # st.pyplot(curva)
 
-    elif st.checkbox("Capa de gas"):
+    #elif st.checkbox("Capa de gas"):
     #     method = "Standing"
     #     st.subheader("*Enter input values*")
     #     q_test = st.number_input("Enter q_test value: ")
@@ -179,8 +221,8 @@ if options == "Reservoir Potential":
     #     st.pyplot(curva)
 
 
-elif options == "Calculation":
-    if st.checkbox("Graficas"):
+#elif options == "Calculation":
+    #if st.checkbox("Graficas"):
         # st.subheader("*Enter input values*")
         # q_test = st.number_input("Enter Q_tets value: ")
         # pwf_test = st.number_input("Enter pwf_test value: ")
