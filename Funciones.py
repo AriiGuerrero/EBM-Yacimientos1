@@ -1,15 +1,16 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import streamlit as st
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import math
 from scipy import stats
 
 #Caso 1 Subsaturado
-def F_caso1(Np, Bo, Boi=None):
-    F = Np*Bo
-    return F
+def saturado(F, Eo, We):
+    N = F*(Eo)+We
+    return N
 
 def Eo_caso1(Bo, Boi, Rsi, Rs, Bg):
     Eo = Bo - Boi + ((Rsi - Rs)*Bg)
@@ -135,11 +136,18 @@ def Rs(colums, P, Pb, API, T=None, Yg=None, Yo=None):
             Rsb = 0
     return Rs
 
+def data(dataframe):
+    st.header("**Dataframe header**")
+    st.write(dataframe.head())
+
+
 def grafica(slope, intercept,lData,y_fit):
-    fig, ax = plt.subplots(figsize=(8, 6))
+    st.header("F vs Eo+Efw Graph")
+    fig, ax = plt.subplots(figsize=(20, 15))
     ax.scatter(lData['Eo+Efw'], lData['F'], label='Original Data')
     ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
     plt.legend()
     text = "Intercept: %.1f\nN: %.3f" % (intercept, slope / 1E6)
     plt.text(0.008, 1, text)
-    plt.show()
+    st.pyplot(fig)
+

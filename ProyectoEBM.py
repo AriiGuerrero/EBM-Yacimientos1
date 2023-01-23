@@ -3,46 +3,12 @@ import streamlit as st
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
+import plotly_express as px
 from scipy import stats
 from streamlit_option_menu import option_menu
 from PIL import Image
 from collections import namedtuple
-from math import radians, acos, asin, cos, sin, atan, degrees, sqrt
-from Funciones import F_caso1,Eo_caso1,Eo_caso3,Efw_caso1,Eg_caso3,Rp_corregido,Bo,Rs,grafica
-
-N = st.number_input("Enter N value: ")
-Pi = st.number_input("Enter Pi value: ")
-Bw = st.number_input("Enter Bw value: ")
-Cf = 0.00000495
-Cw = 0.00000362
-Sw = st.number_input("Enter Sw value")
-data1 = r"C:/Users/Arianna/PycharmProjects/EBM-Yacimientos1/Data/ejercicio1.csv"
-lData = pd.read_csv(data1, sep=",")
-p = lData['P'].values
-Bo = lData['Bo (bbl/STB)'].values
-Np = lData['Np STB'].values
-Wp = lData['Wp'].values
-eai = lData['Bo (bbl/STB)'][0] * ((Cf + (Sw * Cw)) / (1 - Sw))
-lData['F'] = lData['Np STB'] * ((lData['Bo (bbl/STB)']))
-lData['Eo'] = lData['Bo (bbl/STB)'] - lData['Bo (bbl/STB)'][0]
-lData['DP'] = lData['P'][0] - lData['P']
-lData['Efw'] = eai * lData['DP']
-lData['Eo+Efw'] = lData['Efw'] + lData['Eo']
-lData
-        #Grafica
-slope, intercept, r_value, p_value, std_err = stats.linregress(lData['Eo+Efw'], lData['F'])
-print(slope)
-print(intercept)
-y_fit = intercept + (lData['Eo+Efw'] * slope)
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.scatter(lData['Eo+Efw'],lData['F'], label='Original Data')
-ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
-plt.legend()
-text = "Intercept: %.1f\nN: %.3f" % (intercept, slope/1E6)
-plt.text(0.008, 1, text)
-plt.show()
-
-
+from Funciones import data,Bo,Rs,grafica
 
 # Insert an icon
 icon = Image.open("Resources/inflow.png")
@@ -70,7 +36,8 @@ st.title(" RESERVOIR ENGINEERING :link:")
 st.write("---")
 
 st.markdown(
-    """ This app is used to visualize the results of oil reservoir by material balance equation.
+    """ This app is used to visualize the results of oil reservoir by material balance equation and to upload csv files, 
+to call data, and to realize basic calculations..
 
 *Python Libraries:* Streamlit, pandas, plotly, PIL.
 """
@@ -96,163 +63,134 @@ st.sidebar.image(Logo)
 
 # Add title to the sidebar section
 st.sidebar.title(":arrow_down: *Navigation*")
+
+upload_file = st.sidebar.file_uploader("Upload your csv file")
 # Pages
 with st.sidebar:
     options = option_menu(
         menu_title="Menu",
-        options=["Information", "Reservoir Potential", "Calculation"],
-        icons=["pencil-square", "server", "calculator"],)
+        options=["Information", "Data","Reservoir Potential"],
+        icons=["pencil-square","tv-fill", "server"],)
+
+if upload_file:
+    lData=pd.read_csv(upload_file)
 
 # Call web app sections
+if options=="Data":
+    data(lData)
 
-st.set_option('deprecation.showPyplotGlobalUse', False)
-if options == "Reservoir Potential":
-    st.subheader("*Escoga la opcion que requiere:*")
-    if st.checkbox("Yacimiento Subsaturado"):
-        st.write("Los valores de Cf y Cw son: 0.00000495 y 0.00000362 respectivamente")
+elif options == "Reservoir Potential":
+    st.subheader("*Choose the option you require::*")
+    if st.checkbox("Yacimiento Subsaturado sin correlaciones"):
         st.subheader("*Enter input values*")
-        N = st.number_input("Enter N value: ")
         Pi = st.number_input("Enter Pi value: ")
         Bw = st.number_input("Enter Bw value: ")
-        Cf = 0.00000495
-        Cw = 0.00000362
+        Cf = st.number_input("Enter Cf value: ")
+        Cw = st.number_input("Enter Cw value: ")
         Sw = st.number_input("Enter Sw value")
-        data1 = r"C:/Users/Arianna/PycharmProjects/EBM-Yacimientos1/Data/ejercicio1.csv"
-        lData = pd.read_csv(data1, sep=",")
-        p = lData['P'].values
+        p = lData['P (psi)'].values
         Bo = lData['Bo (bbl/STB)'].values
-        Np = lData['Np STB'].values
+        Np = lData['Np (STB)'].values
         Wp = lData['Wp'].values
         eai = lData['Bo (bbl/STB)'][0] * ((Cf + (Sw * Cw)) / (1 - Sw))
-        lData['F'] = lData['Np STB'] * ((lData['Bo (bbl/STB)']))
+        lData['F'] = lData['Np (STB)'] * ((lData['Bo (bbl/STB)']))
         lData['Eo'] = lData['Bo (bbl/STB)'] - lData['Bo (bbl/STB)'][0]
-        lData['DP'] = lData['P'][0] - lData['P']
+        lData['DP'] = lData['P (psi)'][0] - lData['P (psi)']
         lData['Efw'] = eai * lData['DP']
         lData['Eo+Efw'] = lData['Efw'] + lData['Eo']
         lData
         #Grafica
-        slope, intercept, r_value, p_value, std_err = stats.linregress(lData['Eo+Efw'], lData['F'])
-        y_fit = intercept + (lData['Eo+Efw'] * slope)
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.scatter(lData['Eo+Efw'], lData['F'], label='Original Data')
-        ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
-        plt.legend()
-        text = "Intercept: %.1f\nN: %.3f" % (intercept, slope / 1E6)
-        plt.text(0.008, 1, text)
-        st.pyplot(grafica(slope, intercept,lData,y_fit))
-    #elif st.checkbox("Yacimiento Saturado"):
-        # method = "Vogel"
-        # st.subheader("*Enter input values*")
-        # q_test = st.number_input("Enter q_test value: ")
-        # pwf_test = st.number_input("Enter pwf_test value: ")
-        # pr = st.number_input("Enter pr value: ")
-        # pwf = st.number_input("Enter pwf value")
-        # pb = st.number_input("Enter pb value")
-        # st.subheader("*Show results*")
-        # Q_Vogel= qo_vogel(q_test, pwf_test, pr, pwf, pb)
-        # st.success(f" Q_VOGEL = {Q_Vogel:.3f} bpd")
-        # IP=j(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-        # st.success(f" IP = {IP:.3f} bpd/psia")
-        # AOF=aof(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-        # st.success(f" AOF = {AOF:.3f} bpd")
-        # QB= Qb(q_test,pwf,pr,pb,ef=1,ef2=None)
-        # st.success(f" QB = {QB:.3f} bpd")
-        # st.subheader("*THE IPR CURVE*")
-        # pwf1 = st.number_input("Enter the first pwf value: ")
-        # pwf2 = st.number_input("Enter the second pwf value: ")
-        # pwf3 = st.number_input("Enter the third pwf value: ")
-        # pwf4 = st.number_input("Enter the fourth pwf value: ")
-        # pwf5 = st.number_input("Enter the fifth pwf value: ")
-        # list_pwf = np.array([pwf1, pwf2, pwf3, pwf4, pwf5])
-        # curva = IPR_curve_methods(q_test, pwf_test, pr, list_pwf, pb, method, ef=1, ef2=None)
-        # st.pyplot(curva)
-
-    #elif st.checkbox("Capa de gas"):
-    #     method = "Standing"
-    #     st.subheader("*Enter input values*")
-    #     q_test = st.number_input("Enter q_test value: ")
-    #     pwf_test = st.number_input("Enter pwf_test value: ")
-    #     pr = st.number_input("Enter pr value: ")
-    #     pwf = st.number_input("Enter pwf value")
-    #     pb = st.number_input("Enter pb value")
-    #     st.subheader("*Show results*")
-    #     Q_Stand=qo_standing(q_test, pwf_test, pr, pwf, pb, ef=1, ef2=None)
-    #     st.success(f" Q_STANDING = {Q_Stand:.3f} bpd")
-    #     IP=j(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-    #     st.success(f" IP = {IP:.3f} bpd/psia")
-    #     AOF=aof(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-    #     st.success(f" AOF = {AOF:.3f} bpd")
-    #     QB= Qb(q_test,pwf,pr,pb,ef=1,ef2=None)
-    #     st.success(f" Q_B = {QB:.3f} bpd")
-    #     st.subheader("*THE IPR CURVE*")
-    #     pwf1 = st.number_input("Enter the first pwf value: ")
-    #     pwf2 = st.number_input("Enter the second pwf value: ")
-    #     pwf3 = st.number_input("Enter the third pwf value: ")
-    #     pwf4 = st.number_input("Enter the fourth pwf value: ")
-    #     pwf5 = st.number_input("Enter the fifth pwf value: ")
-    #     list_pwf = np.array([pwf1, pwf2, pwf3, pwf4, pwf5])
-    #     curva = IPR_curve_methods(q_test, pwf_test, pr, list_pwf, pb, method, ef=1, ef2=None)
-    #     st.pyplot(curva)
-    #
-    # elif st.checkbox("Qo"):
-    #     st.subheader("*Enter input values*")
-    #     q_test = st.number_input("Enter q_test value: ")
-    #     pwf_test = st.number_input("Enter pwf_test value: ")
-    #     pr = st.number_input("Enter pr value: ")
-    #     pwf = st.number_input("Enter pwf value")
-    #     pb = st.number_input("Enter pb value")
-    #     st.subheader("*Show results*")
-    #     Qo=qo(q_test, pwf_test, pr, pwf, pb, ef=1, ef2=None)
-    #     st.success(f" Qo = {Qo:.3f} bpd")
-    #     IP=j(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-    #     st.success(f" IP = {IP:.3f} bpd/psia")
-    #     AOF=aof(q_test,pwf_test,pr,pb,ef=1,ef2=None)
-    #     st.success(f" AOF = {AOF:.3f} bpd")
-    #     QB= Qb(q_test,pwf,pr,pb,ef=1,ef2=None)
-    #     st.success(f" QB = {QB:.3f} bpd")
-    #     st.subheader("*THE IPR CURVE*")
-    #     pwf1 = st.number_input("Enter the first pwf value: ")
-    #     pwf2 = st.number_input("Enter the second pwf value: ")
-    #     pwf3 = st.number_input("Enter the third pwf value: ")
-    #     pwf4 = st.number_input("Enter the fourth pwf value: ")
-    #     pwf5 = st.number_input("Enter the fifth pwf value: ")
-    #     list_pwf = np.array([pwf1, pwf2, pwf3, pwf4, pwf5])
-    #     curva=IPR_Curve(q_test,pwf_test,pr,list_pwf,pb,ef=1,ef2=None,ax=None)
-    #     st.pyplot(curva)
+        st.subheader("**Show results of graphic**")
+        fig=px.scatter(lData,x="Eo+Efw",y="F",labels={"F":"F(BY)"},title="F vs Eo+Efw",trendline="ols")
+        st.plotly_chart(fig,use_container_width=True)
 
 
-#elif options == "Calculation":
-    #if st.checkbox("Graficas"):
-        # st.subheader("*Enter input values*")
-        # q_test = st.number_input("Enter Q_tets value: ")
-        # pwf_test = st.number_input("Enter pwf_test value: ")
-        # Q = st.number_input("Enter Q value: ")
-        # pr = st.number_input("Enter Pr value: ")
-        # pb = st.number_input("Enter pb value: ")
-        # ID = st.number_input("Enter ID value: ")
-        # THP = st.number_input("Enter THP value: ")
-        # wc = st.number_input("Enter wc value: ")
-        # sgh2o=st.number_input("Enter SGH2O value: ")
-        # densid=st.number_input("Enter Densidad Oil value: ")
-        # TVD = st.number_input("Enter TVD value: ")
-        # MD = st.number_input("Enter MD value: ")
-        # st.subheader("*Show results Inflow*")
-        # pwf_D=pwf_darcy(q_test,pwf_test,Q,pr,pb)
-        # st.success(f" Pwf_Darcy = {pwf_D:.3f} psi")
-        # F_darcy = f_darcy(Q, ID, C=120)
-        # TDH = tdh_(THP, sg_avg, TVD, F_darcy, MD)
-        # st.success(f" TDH = {TDH:.3f} ")
-        # st.subheader("*Show results Outflow*")
-        # pgrav=Pgrav(sg_avg,TVD)
-        # st.success(f" Pgrav = {pgrav:.3f} ")
-        # st.success(f" f = {F_darcy:.3f} ")
-        # F=F_(f_darcy,MD)
-        # st.success(f" F = {F:.3f} ")
-        # Pf=Pf_(F,sg_avg)
-        # st.success(f" Pf = {Pf:.3f} ")
-        # Po = Po_(THP,Pgrav,Pf)
-        # st.success(f" Po = {Po:.3f} ")
-        # Psys = Psys_(Po,pwf_darcy)
-        # st.success(f" Psys = {Psys:.3f} ")
+    elif st.checkbox("Yacimiento Saturado sin correlaciones"):
+        st.subheader("*Enter input values*")
+        p = lData['P (psia)'].values
+        F = lData['F(stb)'].values
+        Eo = lData["Eo(bbl/stb)"].values
+        We = lData['We(bbl)'].values
+        lData['N'] = (lData['F(stb)'] - lData['We(bbl)'])/(lData["Eo(bbl/stb)"])
+        lData
+        #Grafica
+        st.subheader("**Show results of graphic**")
+        fig2=px.scatter(lData,x="Eo(bbl/stb)",y="F(stb)",labels={"F":"F(STB)"},title="F vs Eo",trendline="ols")
+        st.plotly_chart(fig2,use_container_width=True)
+
+    elif st.checkbox("Utilizando Correlaciones"):
+        st.subheader("*Choose the option you require::*")
+        Pb = st.number_input("Enter Pb value")
+        Temp = st.number_input("Enter Temperature value: ")
+        API = st.number_input("Enter API value: ")
+        YG = st.number_input("Enter Yg value: ")
+        YO = st.number_input("Enter Yo value: ")
+        Sw = st.number_input("Enter Sw value: ")
+        Cw = st.number_input("Enter Cw value: ")
+        Cf = st.number_input("Enter Cf value: ")
+        p = lData['P (psi)'].values
+        nDdatos = len(p)
+        Rs_corr=[]
+        V_Pb = []
+        v_Temp=[]
+        v_API=[]
+        V_Yg=[]
+        v_Yo=[]
+        Bo_corr=[]
+        if st.checkbox("Correlación Rs:"):
+            corr_Rs = st.selectbox("Correlacion:", ("Standing", "Al-Marhoun"))
+        if st.checkbox("Correlación Bo:"):
+            corr_Bo = st.selectbox("Correlacion:", ("Standing", "Al-Marhoun"))
+        for i in range(nDdatos):
+            Rs_corr.append(corr_Rs)
+            V_Pb.append(Pb)
+            v_Temp.append(Temp)
+            v_API.append(API)
+            V_Yg.append(YG)
+            v_Yo.append(YO)
+            Bo_corr.append(corr_Bo)
+
+        #RS
+        Params_Rs = pd.DataFrame(
+            {"Correlacion": Rs_corr, "Presion": p, "Presion_Burb": V_Pb,
+             "API": v_API, "Temperatura": v_Temp, "G_gas": V_Yg,
+             "G_oil": v_Yo})
+        v_Rs = []
+        for i in range(nDdatos):
+            Rs_resul = Rs(*(Params_Rs.iloc[i, 0], Params_Rs.iloc[i, 1], Params_Rs.iloc[i, 2], Params_Rs.iloc[i, 3],
+                            Params_Rs.iloc[i, 4], Params_Rs.iloc[i, 5], Params_Rs.iloc[i, 6]))
+            v_Rs.append(Rs_resul)
+        lData["Rs"] = v_Rs
+
+        #Bo
+        Params_Bo = pd.DataFrame(
+                {"Correlacion": Bo_corr, "Presion": p, "Presion_burb": V_Pb,
+                 "Rs": v_Rs, "Rsb": v_Rs, "G_gas": V_Yg, "G_oil": v_Yo,
+                 "Temperatura": v_Temp, "API": v_API})
+        v_Bo = []
+        for i in range(nDdatos):
+            Bo_resul = Bo(*(
+                Params_Bo.iloc[i, 0], Params_Bo.iloc[i, 1], Params_Bo.iloc[i, 2], Params_Bo.iloc[i, 3],
+                Params_Bo.iloc[i, 4],
+                Params_Bo.iloc[i, 5], Params_Bo.iloc[i, 6], Params_Bo.iloc[0, 7], Params_Bo.iloc[0, 8]))
+            v_Bo.append(Bo_resul)
+        lData["Bo"] = v_Bo
+
+        #EBM
+        p = lData['P (psi)'].values
+        Np = lData['Np (MMSTB)'].values
+        Gp = lData['Gp (MMScf)'].values
+        We = lData['We (MMBl)'].values
+        Bg = lData['Bg x104 (Cft/Scf)'].values
+        eai = lData['Bo (bbl/STB)'][0] * ((Cf + (Sw * Cw)) / (1 - Sw))
+        lData['Rp'] = lData['Gp (MMScf)'] / lData['Np (MMSTB)']
+        lData["F"] =lData['Np (MMSTB)']*(lData["Bo"]+(lData["Rp"]-lData["Rs"][0])*lData["Bg x104 (Cft/Scf)"])
+        lData['Eo'] = (lData['Bo'] - lData['Bo'][0])
+        lData['Eg'] = lData['Bo'][0] * (lData['Bg x104 (Cft/Scf)']/lData['Bg x104 (Cft/Scf)'][0]-1)
+        lData['DP'] = lData['P'][0] - lData['P']
+        lData['Efw'] = eai * lData['DP']
+        lData["F+We/ Eo+Efw"] = lData["F"]+lData["We (MMBl)"]/lData["Eo"]+lData['Efw']
+        lData['Eg+Efw/Eo+Efw'] = lData["Eg"]+lData["Efw"]/ lData['Eo'] + lData['Efw']
+        lData
 
 
