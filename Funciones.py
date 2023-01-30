@@ -112,13 +112,4 @@ def data(dataframe):
     st.write(dataframe)
 
 
-def grafica(slope, intercept,lData,y_fit):
-    st.header("F vs Eo+Efw Graph")
-    fig, ax = plt.subplots(figsize=(20, 15))
-    ax.scatter(lData['Eo+Efw'], lData['F'], label='Original Data')
-    ax.plot(lData['Eo+Efw'], y_fit, c='g', label='Fitted Line')
-    plt.legend()
-    text = "Intercept: %.1f\nN: %.3f" % (intercept, slope / 1E6)
-    plt.text(0.008, 1, text)
-    st.pyplot(fig)
 
