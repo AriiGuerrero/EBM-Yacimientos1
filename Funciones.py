@@ -108,8 +108,8 @@ def Rs(colums, P, Pb, API, T=None, Yg=None, Yo=None):
     return Rs
 
 def data(dataframe):
-    st.header("**Dataframe header**")
-    st.write(dataframe.head())
+    st.subheader("**Dataframe**")
+    st.write(dataframe)
 
 
 def grafica(slope, intercept,lData,y_fit):

@@ -81,7 +81,7 @@ if options=="Data":
 
 elif options == "Reservoir Potential":
     st.subheader("*Choose the option you require::*")
-    if st.checkbox("Yacimiento Subsaturado sin correlaciones"):
+    if st.checkbox("Valor de N para yacimientos subsaturados"):
         st.subheader("*Enter input values*")
         Pi = st.number_input("Enter Pi value: ")
         Bw = st.number_input("Enter Bw value: ")
@@ -102,12 +102,28 @@ elif options == "Reservoir Potential":
         #Grafica
         st.subheader("**Show results of graphic**")
         fig=px.scatter(lData,x="Eo+Efw",y="F",labels={"F":"F(BY)"},title="F vs Eo+Efw",trendline="ols")
-        st.plotly_chart(fig,use_container_width=True)
+        fig_data = px.get_trendline_results(fig)
+        fig_results = fig_data.iloc[0]["px_fit_results"]
+        intercept = fig_results.params[0]
+        pendient = fig_results.params[1]
 
+        line1 = 'y = ' + str(round(intercept, 4)) + ' + ' + str(round(pendient, 4)) + 'x'
+        line2 = 'N = ' + str(np.format_float_scientific(pendient, precision=4, exp_digits=2)) + 'STB'
+        anotations = line1 + '<br>' + line2
 
-    elif st.checkbox("Yacimiento Saturado sin correlaciones"):
+        fig.add_annotation(x=0.004, y=160000, xref="x", yref="y", text=anotations, showarrow=False, align="right",
+                           arrowhead=2, arrowsize=1,
+                           arrowwidth=2, arrowcolor="#636363", ax=20, ay=-30, borderwidth=2, borderpad=4,
+                           bgcolor="rgba(100,100,100,0.6)",
+                           opacity=0.8)
+
+        fig.update_layout(yaxis_range=[((min(lData['F'])) - max(lData['F'])/ 10), (max(lData['F'])) + max(lData['F'])/ 10],
+                          xaxis_range=[((min(lData['Eo+Efw'])) - max(lData['Eo+Efw'])/ 10), (max(lData['Eo+Efw'])) + max(lData['Eo+Efw'])/ 10])
+        st.plotly_chart(fig, use_container_width=True)
+
+    elif st.checkbox("Valor de N para yacimientos saturados"):
         st.subheader("*Enter input values*")
-        p = lData['P (psia)'].values
+        p = lData['P(psia)'].values
         F = lData['F(stb)'].values
         Eo = lData["Eo(bbl/stb)"].values
         We = lData['We(bbl)'].values
@@ -116,7 +132,27 @@ elif options == "Reservoir Potential":
         #Grafica
         st.subheader("**Show results of graphic**")
         fig2=px.scatter(lData,x="Eo(bbl/stb)",y="F(stb)",labels={"F":"F(STB)"},title="F vs Eo",trendline="ols")
-        st.plotly_chart(fig2,use_container_width=True)
+        fig_data = px.get_trendline_results(fig2)
+        fig_results = fig_data.iloc[0]["px_fit_results"]
+        intercept = fig_results.params[0]
+        pendient = fig_results.params[1]
+
+        line1 = 'y = ' + str(round(intercept, 4)) + ' + ' + str(round(pendient, 4)) + 'x'
+        line2 = 'N = ' + str(np.format_float_scientific(pendient, precision=4, exp_digits=2)) + 'STB'
+        anotations = line1 + '<br>' + line2
+
+        fig2.add_annotation(x=0.2, y=3000000, xref="x", yref="y", text=anotations, showarrow=False, align="right",
+                           arrowhead=2, arrowsize=1,
+                           arrowwidth=2, arrowcolor="#636363", ax=20, ay=-30, borderwidth=2, borderpad=4,
+                           bgcolor="rgba(100,100,100,0.6)",
+                           opacity=0.8)
+
+        fig2.update_layout(
+            yaxis_range=[((min(lData['F(stb)'])) - max(lData['F(stb)']) / 10), (max(lData['F(stb)'])) + max(lData['F(stb)']) / 10],
+            xaxis_range=[((min(lData["Eo(bbl/stb)"])) - max(lData["Eo(bbl/stb)"]) / 10),
+                         (max(lData["Eo(bbl/stb)"])) + max(lData["Eo(bbl/stb)"]) / 10])
+        st.plotly_chart(fig2, use_container_width=True)
+
 
     elif st.checkbox("Utilizando Correlaciones"):
         st.subheader("*Choose the option you require::*")
@@ -137,6 +173,8 @@ elif options == "Reservoir Potential":
         V_Yg=[]
         v_Yo=[]
         Bo_corr=[]
+        corr_Rs=[]
+        corr_Bo=[]
         if st.checkbox("Correlación Rs:"):
             corr_Rs = st.selectbox("Correlacion:", ("Standing", "Al-Marhoun"))
         if st.checkbox("Correlación Bo:"):
@@ -160,7 +198,7 @@ elif options == "Reservoir Potential":
             Rs_resul = Rs(*(Params_Rs.iloc[i, 0], Params_Rs.iloc[i, 1], Params_Rs.iloc[i, 2], Params_Rs.iloc[i, 3],
                             Params_Rs.iloc[i, 4], Params_Rs.iloc[i, 5], Params_Rs.iloc[i, 6]))
             v_Rs.append(Rs_resul)
-        lData["Rs"] = v_Rs
+        lData["Rs"] = str(v_Rs)
 
         #Bo
         Params_Bo = pd.DataFrame(
