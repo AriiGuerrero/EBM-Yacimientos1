@@ -1,0 +1,7 @@
+streamlit==1.11.0
+streamlit-option-menu==0.3.2
+plotly_express==0.4.0
+pandas==1.5.2
+pillow==9.4.0
+numpy==1.24.1
+matplotlib==3.6.2

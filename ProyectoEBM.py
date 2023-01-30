@@ -1,14 +1,10 @@
 import numpy as np
 import streamlit as st
 import pandas as pd
-import matplotlib
-import matplotlib.pyplot as plt
 import plotly_express as px
-from scipy import stats
 from streamlit_option_menu import option_menu
 from PIL import Image
-from collections import namedtuple
-from Funciones import data,Bo,Rs,grafica
+from Funciones import data,Bo,Rs
 
 # Insert an icon
 icon = Image.open("Resources/inflow.png")
@@ -111,7 +107,7 @@ elif options == "Reservoir Potential":
         line2 = 'N = ' + str(np.format_float_scientific(pendient, precision=4, exp_digits=2)) + 'STB'
         anotations = line1 + '<br>' + line2
 
-        fig.add_annotation(x=0.004, y=160000, xref="x", yref="y", text=anotations, showarrow=False, align="right",
+        fig.add_annotation(x=0.0034, y=160000, xref="x", yref="y", text=anotations, showarrow=False, align="right",
                            arrowhead=2, arrowsize=1,
                            arrowwidth=2, arrowcolor="#636363", ax=20, ay=-30, borderwidth=2, borderpad=4,
                            bgcolor="rgba(100,100,100,0.6)",

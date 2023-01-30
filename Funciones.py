@@ -1,11 +1,7 @@
 import numpy as np
-import pandas as pd
-import seaborn as sns
 import streamlit as st
-import matplotlib.pyplot as plt
-from matplotlib import ticker
 import math
-from scipy import stats
+import pandas as pd
 
 #Correlations
 def Bo(colums,P,Pb,Rs,Rsb,Yg,Yo,T,API):
@@ -93,7 +89,7 @@ def Rs(colums, P, Pb, API, T=None, Yg=None, Yo=None):
             Rs = float((a * (Yg ** b) * (Yo ** c) * (T ** d) * P) ** e)
 
         else:
-            Rs = string("Seleccione una correlación de la lista")
+            Rs = str("Seleccione una correlación de la lista")
 
     else:
         if colums == "Standing":
@@ -103,7 +99,7 @@ def Rs(colums, P, Pb, API, T=None, Yg=None, Yo=None):
             Rsb = float((a * (Yg ** b) * (Yo ** c) * (T ** d) * Pb) ** e)
             Rs = Rsb
         else:
-            Rs = string("Seleccione una correlación de la lista")
+            Rs = str("Seleccione una correlación de la lista")
             Rsb = 0
     return Rs
 
